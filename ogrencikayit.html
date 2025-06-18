@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Öğrenci Kayıt</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <style id="theme-style">
+    body {
+      background-color: #121212;
+      color: #f0f0f0;
+    }
+    .form-control, .form-select {
+      background-color: #1e1e1e;
+      color: #ffffff;
+      border: 1px solid #444;
+    }
+    .table {
+      background-color: #1e1e1e;
+      color: #ffffff;
+    }
+    .table thead {
+      background-color: #333;
+      color: #fff;
+    }
+    .btn-primary {
+      background-color: #022965;
+      border: none;
+    }
+    .btn-secondary {
+      background-color: #6c757d;
+      border: none;
+    }
+  </style>
+</head>
+<body class="p-5">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h3>Kayıt Formu</h3>
+      <button id="themeToggle" class="btn btn-sm btn-outline-light">Tema Değiştir</button>
+    </div>
+    <form id="studentForm">
+      <div class="mb-3">
+        <label for="fullname" class="form-label">Ad Soyad:</label>
+        <input type="text" class="form-control" id="fullname" required />
+      </div>
+      <div class="mb-3">
+        <label for="email" class="form-label">Email address:</label>
+        <input type="email" class="form-control" id="email" required />
+      </div>
+      <div class="mb-3">
+        <label for="birthdate" class="form-label">Doğum tarihi:</label>
+        <input type="date" class="form-control" id="birthdate" required />
+      </div>
+      <div class="mb-3">
+        <label for="birthplace" class="form-label">Doğum Yeri:</label>
+        <select class="form-select" id="birthplace" required>
+          <option>Eskişehir</option>
+          <option>Ankara</option>
+          <option>İzmir</option>
+          <option>Antalya</option>
+          <option>Aydın</option>
+        </select>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Sınıfınız:</label>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="class" id="class1" value="1" required />
+          <label class="form-check-label" for="class1">1</label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="class" id="class2" value="2" />
+          <label class="form-check-label" for="class2">2</label>
+        </div>
+      </div>
+      <button type="reset" class="btn btn-secondary me-2">Reset</button>
+      <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+    <hr class="my-5" />
+    <h4>Kayıtlı Öğrenciler</h4>
+    <div class="mb-3">
+      <label for="sortBy" class="form-label">Sıralama Kriteri:</label>
+      <select class="form-select w-25" id="sortBy">
+        <option value="ad">Ad</option>
+        <option value="soyad">Soyad</option>
+        <option value="email">Email</option>
+        <option value="birthdate">Doğum Tarihi</option>
+      </select>
+    </div>
+    <table class="table table-bordered table-striped mt-3" id="studentsTable">
+      <thead class="table-light">
+        <tr>
+          <th>ID</th>
+          <th>AD</th>
+          <th>Soyad</th>
+          <th>Email</th>
+          <th>Doğum Tarihi</th>
+          <th>Sil</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>11111</td>
+          <td>İhsan</td>
+          <td>Güneş</td>
+          <td>john@example.com</td>
+          <td>2000-01-01</td>
+          <td><button class="btn btn-sm btn-danger delete-btn">×</button></td>
+        </tr>
+        <tr>
+          <td>22222</td>
+          <td>John</td>
+          <td>Doe</td>
+          <td>john@example.com</td>
+          <td>1995-06-15</td>
+          <td><button class="btn btn-sm btn-danger delete-btn">×</button></td>
+        </tr>
+        <tr>
+          <td>33333</td>
+          <td>Mary</td>
+          <td>Moe</td>
+          <td>mary@example.com</td>
+          <td>1990-12-01</td>
+          <td><button class="btn btn-sm btn-danger delete-btn">×</button></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <script>
+    let idCounter = 44444;
+
+    function addDeleteFunctionality(button) {
+      button.addEventListener('click', function () {
+        const row = this.closest('tr');
+        row.remove();
+      });
+    }
+
+    document.querySelectorAll('.delete-btn').forEach(btn => addDeleteFunctionality(btn));
+
+    document.getElementById('studentForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      const fullname = document.getElementById('fullname').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const birthdate = document.getElementById('birthdate').value;
+      const [ad, soyad] = fullname.split(' ');
+      const table = document.getElementById('studentsTable').getElementsByTagName('tbody')[0];
+      const newRow = table.insertRow();
+      newRow.innerHTML = `
+        <td>${idCounter++}</td>
+        <td>${ad || ''}</td>
+        <td>${soyad || ''}</td>
+        <td>${email}</td>
+        <td>${birthdate}</td>
+        <td><button class="btn btn-sm btn-danger delete-btn">×</button></td>
+      `;
+      addDeleteFunctionality(newRow.querySelector('.delete-btn'));
+      this.reset();
+      sortTable();
+    });
+
+    document.getElementById('sortBy').addEventListener('change', sortTable);
+
+    function sortTable() {
+      const criteria = document.getElementById('sortBy').value;
+      const table = document.getElementById('studentsTable').getElementsByTagName('tbody')[0];
+      const rows = Array.from(table.rows);
+      const indexMap = {
+        'ad': 1,
+        'soyad': 2,
+        'email': 3,
+        'birthdate': 4
+      };
+      const columnIndex = indexMap[criteria];
+      rows.sort((a, b) => {
+        const valA = a.cells[columnIndex].innerText.toLowerCase();
+        const valB = b.cells[columnIndex].innerText.toLowerCase();
+        return valA.localeCompare(valB);
+      });
+      table.innerHTML = '';
+      rows.forEach(row => table.appendChild(row));
+    }
+
+    let currentTheme = "dark";
+
+    document.getElementById("themeToggle").addEventListener("click", function () {
+      const styleTag = document.getElementById("theme-style");
+      if (currentTheme === "dark") {
+        styleTag.innerHTML = `
+          body {
+            background-color: #ffe6f0;
+            color: #4d0039;
+          }
+          .form-control, .form-select {
+            background-color: #fff0f5;
+            color: #4d0039;
+            border: 1px solid #d63384;
+          }
+          .table {
+            background-color: #fff0f5;
+            color: #4d0039;
+          }
+          .table thead {
+            background-color: #f8bbd0;
+            color: #4d0039;
+          }
+          .btn-primary {
+            background-color: #d63384;
+            border: none;
+          }
+          .btn-secondary {
+            background-color: #f8bbd0;
+            border: none;
+            color: #4d0039;
+          }
+        `;
+        currentTheme = "pink";
+      } else {
+        styleTag.innerHTML = `
+          body {
+            background-color: #121212;
+            color: #f0f0f0;
+          }
+          .form-control, .form-select {
+            background-color: #1e1e1e;
+            color: #ffffff;
+            border: 1px solid #444;
+          }
+          .table {
+            background-color: #1e1e1e;
+            color: #ffffff;
+          }
+          .table thead {
+            background-color: #333;
+            color: #fff;
+          }
+          .btn-primary {
+            background-color: #0d6efd;
+            border: none;
+          }
+          .btn-secondary {
+            background-color: #6c757d;
+            border: none;
+          }
+        `;
+        currentTheme = "dark";
+      }
+    });
+  </script>
+</body>
+</html>
